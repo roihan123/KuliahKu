@@ -13,7 +13,16 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting('id_ID', null); // Inisialisasi locale Indonesia
-  runApp(const MyApp());
+
+  final dir = await getApplicationDocumentsDirectory();
+  final loginFile = File('${dir.path}/login.txt');
+  String? loggedInEmail;
+  if (await loginFile.exists()) {
+    loggedInEmail = await loginFile.readAsString();
+  }
+
+  runApp(MyApp(loggedInEmail: loggedInEmail));
+
 }
 
   Future<File> get _akunFile async {
@@ -60,10 +69,17 @@ void main() async {
     }).toList();
   }
 
+    Future<void> simpanLogin(String email) async {
+      final dir = await getApplicationDocumentsDirectory();
+      final file = File('${dir.path}/login.txt');
+      await file.writeAsString(email);
+    }
+
   ValueNotifier<bool> darkModeNotifier = ValueNotifier(false);
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final String? loggedInEmail;
+  const MyApp({super.key, this.loggedInEmail});
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<bool>(
@@ -90,7 +106,22 @@ class MyApp extends StatelessWidget {
               brightness: darkMode ? Brightness.dark : Brightness.light,
             ),
           ),
-      home: const AuthPage(),
+
+                home: loggedInEmail == null
+              ? const AuthPage()
+              : FutureBuilder<List<Map<String, String>>>(
+                  future: bacaAkun(),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) return const SizedBox();
+                    final akun = snapshot.data!.firstWhere(
+                      (a) => a['email'] == loggedInEmail,
+                      orElse: () => {},
+                    );
+                    if (akun.isEmpty) return const AuthPage();
+                    return HalamanUtama(user: akun);
+                  },
+                ),
+
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
@@ -353,7 +384,7 @@ class _AuthPageState extends State<AuthPage> with SingleTickerProviderStateMixin
                                             //     }
                                             //   }
                                             // },
-                                            onPressed: () {
+                                            onPressed: () async{
                                               if (_loginFormKey.currentState!.validate()) {
                                                 final akun = akunList.firstWhere(
                                                   (a) =>
@@ -362,6 +393,7 @@ class _AuthPageState extends State<AuthPage> with SingleTickerProviderStateMixin
                                                   orElse: () => {},
                                                 );
                                                 if (akun.isNotEmpty) {
+                                                  await simpanLogin(akun['email']!);
                                                   ScaffoldMessenger.of(context).showSnackBar(
                                                     const SnackBar(content: Text('Login berhasil!')),
                                                   );
@@ -562,15 +594,17 @@ class _AuthPageState extends State<AuthPage> with SingleTickerProviderStateMixin
                                             //     _tabController.animateTo(0);
                                             //   }
                                             // },
-                                            onPressed: () {
+                                            onPressed: () async{
                                               if (_registerFormKey.currentState!.validate()) {
-                                                akunList.add({
+                                                final akunBaru = {
                                                   'email': _registerEmailController.text,
                                                   'password': _registerPasswordController.text,
                                                   'full_name': _registerFullNameController.text,
                                                   'program_studi': _registerProgramController.text,
                                                   'semester': _registerSemesterController.text,
-                                                });
+                                                };
+                                                akunList.add(akunBaru);
+                                                await simpanAkun(akunBaru); // <-- simpan ke file
                                                 ScaffoldMessenger.of(context).showSnackBar(
                                                   const SnackBar(content: Text('Registrasi berhasil! Silakan login.')),
                                                 );

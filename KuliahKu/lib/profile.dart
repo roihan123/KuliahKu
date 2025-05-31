@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
 import 'main.dart' show updateAkun, AuthPage, darkModeNotifier;
 
 class ProfilePage extends StatefulWidget {
@@ -18,7 +20,14 @@ class _ProfilePageState extends State<ProfilePage> {
   String language = 'id';
   bool isEditing = false;
 
-void handleLogout() {
+Future<void> hapusLogin() async {
+  final dir = await getApplicationDocumentsDirectory();
+  final file = File('${dir.path}/login.txt');
+  if (await file.exists()) await file.delete();
+}
+
+void handleLogout() async {
+  await hapusLogin();
   Navigator.of(context).pushAndRemoveUntil(
     MaterialPageRoute(builder: (context) => const AuthPage()),
     (route) => false,
