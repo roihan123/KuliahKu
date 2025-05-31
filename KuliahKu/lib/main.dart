@@ -195,8 +195,8 @@ class _AuthPageState extends State<AuthPage> with SingleTickerProviderStateMixin
                       const SizedBox(height: 24),
                       ClipRRect(
                         borderRadius: BorderRadius.circular(20),
-                        child: Image.network(
-                          'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=600&q=80',
+                        child: Image.asset(
+                          'assets/images/KuliahkuBanner.png',
                           height: 170,
                           width: double.infinity,
                           fit: BoxFit.cover,
@@ -535,25 +535,6 @@ class _AuthPageState extends State<AuthPage> with SingleTickerProviderStateMixin
                                             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                                           ),
                                         ),
-                                        const SizedBox(height: 18),
-                                        const Text('Fakultas (Opsional)', style: TextStyle(fontWeight: FontWeight.w500)),
-                                        const SizedBox(height: 6),
-                                        TextFormField(
-                                          decoration: InputDecoration(
-                                            hintText: 'Fakultas',
-                                            filled: true,
-                                            fillColor: Colors.white,
-                                            border: OutlineInputBorder(
-                                              borderRadius: BorderRadius.circular(8),
-                                              borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
-                                            ),
-                                            enabledBorder: OutlineInputBorder(
-                                              borderRadius: BorderRadius.circular(8),
-                                              borderSide: const BorderSide(color: Color(0xFFE0E0E0)),
-                                            ),
-                                            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                                          ),
-                                        ),
                                         const SizedBox(height: 28),
                                         SizedBox(
                                           width: double.infinity,
@@ -598,7 +579,7 @@ class _AuthPageState extends State<AuthPage> with SingleTickerProviderStateMixin
                                             },
                                             child: const Text(
                                               'Daftar',
-                                              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+                                              style: TextStyle(color: Color(0xFFB0B0B0), fontSize: 18, fontWeight: FontWeight.w500),
                                             ),
                                           ),
                                         ),

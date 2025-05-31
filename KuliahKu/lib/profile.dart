@@ -92,14 +92,17 @@ void handleLogout() {
                 width: 96,
                 height: 96,
                 margin: const EdgeInsets.only(bottom: 12),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: const Color(0xFF2A2D43),
-                  image: const DecorationImage(
-                    image: NetworkImage(
-                      'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&h=150',
+                child: CircleAvatar(
+                  backgroundColor: const Color(0xFF2A2D43),
+                  child: Text(
+                    (user['full_name'] != null && user['full_name'].isNotEmpty)
+                        ? user['full_name'][0].toUpperCase()
+                        : '-',
+                    style: const TextStyle(
+                      fontSize: 48,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
                     ),
-                    fit: BoxFit.cover,
                   ),
                 ),
               ),

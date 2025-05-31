@@ -537,7 +537,7 @@ class _NoteDialogState extends State<NoteDialog> {
                       );
                     }
                   },
-                  child: const Text('Simpan', style: TextStyle(fontSize: 17)),
+                  child: const Text('Simpan', style: TextStyle(color: Color(0xFFB0B0B0), fontSize: 17)),
                 ),
                 const SizedBox(height: 10),
                 OutlinedButton(
