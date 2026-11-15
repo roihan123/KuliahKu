@@ -36,6 +36,23 @@ class _NotifikasiPageState extends State<NotifikasiPage> {
           appBar: AppBar(
             title: const Text('Notifikasi'),
             actions: [
+              IconButton(
+                tooltip: 'Tes Notifikasi Sistem HP',
+                icon: const Icon(Icons.send_to_mobile_outlined),
+                onPressed: () async {
+                  final messenger = ScaffoldMessenger.of(context);
+                  final shown = await data.sendTestOrSummarySystemNotification();
+                  messenger.showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        shown
+                            ? 'Notifikasi dikirim ke status bar HP!'
+                            : 'Izinkan akses notifikasi di HP Android untuk menampilkan di status bar.',
+                      ),
+                    ),
+                  );
+                },
+              ),
               if (unreadCount > 0)
                 TextButton.icon(
                   onPressed: data.markAllNotificationsRead,

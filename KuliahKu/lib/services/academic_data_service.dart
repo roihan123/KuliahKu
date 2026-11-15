@@ -7,6 +7,7 @@ import '../models/note.dart';
 import '../models/schedule.dart';
 import '../models/task.dart';
 import 'json_storage.dart';
+import 'system_notification_service.dart';
 
 /// Mengelola seluruh data akademik (Jadwal, Tugas, Catatan, dan status baca
 /// Notifikasi) dalam satu `ChangeNotifier` terpusat.
@@ -29,9 +30,20 @@ class AcademicDataService extends ChangeNotifier {
   final List<Note> _notes = [];
   final List<Schedule> _schedules = [];
   final Set<String> _readNotificationIds = {};
+  final Set<String> _pushedSystemNotificationIds = {};
+  bool _systemNotificationsEnabled = true;
 
   bool _isLoading = true;
   bool get isLoading => _isLoading;
+
+  void setSystemNotificationsEnabled(bool enabled) {
+    _systemNotificationsEnabled = enabled;
+    if (enabled) {
+      pushNewSystemNotifications();
+    } else {
+      SystemNotificationService.cancelAll();
+    }
+  }
 
   List<Task> get tasks => List.unmodifiable(_tasks);
   List<Note> get notes => List.unmodifiable(_notes);
@@ -77,8 +89,17 @@ class AcademicDataService extends ChangeNotifier {
       }
     }
 
+    _pushedSystemNotificationIds.clear();
+    final pushedList = rawNotifState?['pushedIds'];
+    if (pushedList is List) {
+      for (final item in pushedList) {
+        if (item is String) _pushedSystemNotificationIds.add(item);
+      }
+    }
+
     _isLoading = false;
     notifyListeners();
+    await pushNewSystemNotifications();
   }
 
   // ---------------------------------------------------------------------------
@@ -150,6 +171,7 @@ class AcademicDataService extends ChangeNotifier {
     _sortTasks();
     notifyListeners();
     await _saveTasks();
+    await pushNewSystemNotifications();
   }
 
   Future<void> toggleTaskCompleted(String taskId) async {
@@ -160,6 +182,7 @@ class AcademicDataService extends ChangeNotifier {
     _sortTasks();
     notifyListeners();
     await _saveTasks();
+    await pushNewSystemNotifications();
   }
 
   Future<Task?> deleteTask(String taskId) async {
@@ -210,6 +233,7 @@ class AcademicDataService extends ChangeNotifier {
     _sortSchedules();
     notifyListeners();
     await _saveSchedules();
+    await pushNewSystemNotifications();
   }
 
   Future<Schedule?> deleteSchedule(String scheduleId) async {
@@ -334,10 +358,53 @@ class AcademicDataService extends ChangeNotifier {
     for (final item in all) {
       if (_readNotificationIds.add(item.id)) changed = true;
     }
+    await SystemNotificationService.cancelAll();
     if (changed) {
       notifyListeners();
       await _saveNotificationState();
     }
+  }
+
+  /// Mengirim pengingat yang belum pernah ditampilkan hari ini ke status bar HP (Android).
+  Future<void> pushNewSystemNotifications([DateTime? now]) async {
+    if (!_systemNotificationsEnabled) return;
+    final unread = buildNotifications(now).where((n) => !n.isRead).toList();
+    var stateChanged = false;
+    for (final item in unread) {
+      if (_pushedSystemNotificationIds.contains(item.id)) continue;
+      final shown = await SystemNotificationService.show(
+        id: item.id.hashCode & 0x7fffffff,
+        title: item.title,
+        body: '${item.subtitle} — ${item.detail}',
+      );
+      if (shown) {
+        _pushedSystemNotificationIds.add(item.id);
+        stateChanged = true;
+      }
+    }
+    if (stateChanged) {
+      await _saveNotificationState();
+    }
+  }
+
+  /// Menampilkan ulang ringkasan pengingat aktif atau notifikasi uji coba di status bar HP.
+  Future<bool> sendTestOrSummarySystemNotification() async {
+    await SystemNotificationService.requestPermission();
+    final unread = buildNotifications().where((n) => !n.isRead).toList();
+    if (unread.isEmpty) {
+      return SystemNotificationService.show(
+        id: 999001,
+        title: 'Pengingat KuliahKu Aktif',
+        body: 'Notifikasi sistem berfungsi! Pengingat jadwal & tugas akan muncul di sini.',
+      );
+    }
+    final first = unread.first;
+    final extra = unread.length > 1 ? ' (+${unread.length - 1} pengingat lainnya)' : '';
+    return SystemNotificationService.show(
+      id: 999002,
+      title: '${first.title}$extra',
+      body: '${first.subtitle} — ${first.detail}',
+    );
   }
 
   // ---------------------------------------------------------------------------
@@ -378,6 +445,8 @@ class AcademicDataService extends ChangeNotifier {
   Future<void> _saveSchedules() =>
       _storage.write(_schedulesFile, _schedules.map((s) => s.toJson()).toList());
 
-  Future<void> _saveNotificationState() =>
-      _storage.write(_notifStateFile, {'readIds': _readNotificationIds.toList()});
+  Future<void> _saveNotificationState() => _storage.write(_notifStateFile, {
+        'readIds': _readNotificationIds.toList(),
+        'pushedIds': _pushedSystemNotificationIds.toList(),
+      });
 }

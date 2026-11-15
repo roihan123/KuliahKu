@@ -369,6 +369,11 @@ class _ProfilePageState extends State<ProfilePage> {
                         title: Text('Bahasa Aplikasi'),
                         subtitle: Text('Bahasa Indonesia (id_ID)'),
                       ),
+                      const ListTile(
+                        leading: Icon(Icons.info_outline_rounded),
+                        title: Text('Versi Aplikasi'),
+                        subtitle: Text('KuliahKu v2.0.0 (Build 2)'),
+                      ),
                     ],
                   ),
                 ),

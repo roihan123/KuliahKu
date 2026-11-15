@@ -10,6 +10,7 @@ import 'services/academic_data_service.dart';
 import 'services/auth_service.dart';
 import 'services/json_storage.dart';
 import 'services/settings_service.dart';
+import 'services/system_notification_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,8 +21,17 @@ Future<void> main() async {
   final auth = AuthService(storage);
   final data = AcademicDataService(storage);
 
+  await settings.load();
+  data.setSystemNotificationsEnabled(settings.notificationsEnabled);
+  settings.addListener(() {
+    data.setSystemNotificationsEnabled(settings.notificationsEnabled);
+  });
+
+  if (settings.notificationsEnabled) {
+    await SystemNotificationService.requestPermission();
+  }
+
   await Future.wait<void>([
-    settings.load(),
     auth.init(),
     data.loadAll(),
   ]);

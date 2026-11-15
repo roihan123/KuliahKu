@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'json_storage.dart';
+import 'system_notification_service.dart';
 
 /// Pengaturan aplikasi yang tersimpan (tema & notifikasi).
 class SettingsService extends ChangeNotifier {
@@ -29,7 +30,14 @@ class SettingsService extends ChangeNotifier {
   Future<void> setDarkMode(bool enabled) =>
       _update(() => _themeMode = enabled ? ThemeMode.dark : ThemeMode.light);
 
-  Future<void> setNotificationsEnabled(bool enabled) => _update(() => _notificationsEnabled = enabled);
+  Future<void> setNotificationsEnabled(bool enabled) async {
+    if (enabled) {
+      await SystemNotificationService.requestPermission();
+    } else {
+      await SystemNotificationService.cancelAll();
+    }
+    return _update(() => _notificationsEnabled = enabled);
+  }
 
   Future<void> _update(VoidCallback change) {
     change();
