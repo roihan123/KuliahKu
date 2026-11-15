@@ -1,6 +1,6 @@
 # KuliahKu
 
-**KuliahKu** adalah aplikasi mobile berbasis **Flutter** yang dirancang untuk membantu mahasiswa mengelola aktivitas akademik sehari-hari secara terintegrasi — mulai dari jadwal kuliah, tugas & tenggat waktu, catatan perkuliahan, kalender akademik, hingga pengingat otomatis.
+**KuliahKu** adalah aplikasi mobile berbasis **Flutter** yang dirancang untuk membantu mahasiswa mengelola aktivitas akademik sehari-hari secara terintegrasi, mulai dari jadwal kuliah, tugas & tenggat waktu, catatan perkuliahan, kalender akademik, hingga pengingat otomatis.
 
 ---
 
@@ -63,6 +63,7 @@ Untuk menginstal langsung di HP Android tanpa perlu melakukan *build* dari kode 
 * **Penyimpanan Lokal Atomik (`JsonStorage`)**
   * Seluruh data disimpan secara lokal di perangkat dalam format JSON (`users.json`, `session.json`, `jadwal.json`, `tasks.json`, `notes.json`, `notifications_state.json`, `settings.json`).
   * Menggunakan mekanisme *atomic write* (`.tmp` lalu *rename*) dan antrian penulisan (*write queue*) untuk mencegah korupsi file.
+  * Unfortunately penyimpanan FULLY local jadi tidak bisa digunakan di device berbeda dan hanya untuk mobile device.. belum integrasi dengan desktop.
 
 ---
 
