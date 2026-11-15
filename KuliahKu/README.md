@@ -1,16 +1,23 @@
-# main
+# KuliahKu (Flutter Project)
 
-A new Flutter project.
+Direktori ini berisi kode sumber utama aplikasi **Flutter KuliahKu**.
+Dokumentasi lengkap mengenai fitur, arsitektur, dan cara mengunduh APK tersedia pada [README utama repositori](../README.md).
 
-## Getting Started
+## Menjalankan Aplikasi
 
-This project is a starting point for a Flutter application.
+Pastikan terminal berada di direktori ini (`KuliahKu/KuliahKu`), lalu jalankan:
 
-A few resources to get you started if this is your first Flutter project:
+```bash
+flutter pub get
+flutter run
+```
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+> **Catatan:** Jalankan pada target **Android** (Emulator/Perangkat fisik) atau **Desktop (Windows/Linux/macOS)** karena penyimpanan lokal menggunakan `dart:io` dan `path_provider`.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Membuat Build APK Rilis
+
+```bash
+flutter build apk --release
+```
+
+Hasil *build* APK akan berada di `build/app/outputs/flutter-apk/app-release.apk`.
